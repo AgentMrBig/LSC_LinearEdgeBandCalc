@@ -1,27 +1,54 @@
 let isDrawing = false;
 let startPoint = { x: 0, y: 0 };
 let drawnLines = [];
+let totalLinearFootage = 0;
+let cabinetCount = 0;
+
+window.onload = function() {
+    console.log("Page has fully loaded."); // Debug message to indicate the onload event fired
+    
+    // Scroll to the top
+    window.scrollTo(0, 0);
+    console.log("Scroll position set to top."); // Debug message after scrolling to the top
+    
+    // Log the initial scroll position
+    const initialScrollPosition = window.scrollY || document.documentElement.scrollTop;
+    console.log("Initial scroll position:", initialScrollPosition);
+    
+    // Add scroll event listener to log scroll position in real-time
+    window.addEventListener('scroll', function() {
+        const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+        console.log("Current scroll position:", scrollPosition);
+    });
+};
+
 
 function showComponent(componentId) {
     // Hide all panels
     const panels = document.querySelectorAll('.panel');
-    panels.forEach(panel => panel.classList.add('hidden'));
+    panels.forEach(panel => {
+        panel.classList.add('hidden');
+    });
 
-    // Remove active class from all buttons
+    // Remove fancy class from all buttons
     const buttons = document.querySelectorAll('.nav-menu button');
-    buttons.forEach(button => button.classList.remove('active'));
+    buttons.forEach(button => button.classList.remove('fancy'));
 
-    // Show selected component
-    document.getElementById(componentId).classList.remove('hidden');
+    // Show the selected component
+    const selectedPanel = document.getElementById(componentId);
+    if (selectedPanel) {
+        selectedPanel.classList.remove('hidden');
+    }
 
-    // Add active class to the clicked button
-    document.querySelector(`.nav-menu button[onclick="showComponent('${componentId}')"]`).classList.add('active');
-
-    // Initialize the canvas when the Stone Quote component is shown
-    if (componentId === 'stoneQuote') {
-        initDrawingCanvas();
+    // Add fancy class to the clicked button
+    const clickedButton = document.querySelector(`.nav-menu button[onclick="showComponent('${componentId}')"]`);
+    if (clickedButton) {
+        clickedButton.classList.add('fancy');
     }
 }
+
+
+
 
 function fractionToDecimal(fraction) {
     if (fraction.includes('/')) {
@@ -32,10 +59,10 @@ function fractionToDecimal(fraction) {
             return whole + (parseFloat(frac[0]) / parseFloat(frac[1]));
         } else {
             const frac = parts[0].split('/');
-            return parseFloat(frac[0]) / parseFloat(frac[1]);
+            returnparseFloat(frac[0]) / parseFloat(frac[1]);
         }
     } else {
-        return parseFloat(fraction);
+        returnparseFloat(fraction);
     }
 }
 

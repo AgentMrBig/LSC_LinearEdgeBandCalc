@@ -6,6 +6,7 @@ This will be software built with HTML, CSS and Javascript. No external libraries
 
 Current Structure:
 
+...bash
 /project-root
 │
 ├── /css
@@ -15,3 +16,4 @@ Current Structure:
 │   └── main.js
 │
 └── index.html
+...
