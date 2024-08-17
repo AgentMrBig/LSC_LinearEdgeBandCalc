@@ -1,264 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edge Banding Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .header h2 {
-            margin: 5px 0;
-            font-size: 18px;
-            color: #555;
-        }
-        .panel {
-            background-color: white;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .panel h3 {
-            margin-top: 0;
-        }
-        input, select, button {
-            padding: 10px;
-            margin: 10px 0;
-            width: 100%;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .result {
-            margin-top: 20px;
-        }
-        #cabinetListContainer {
-            margin-top: 20px;
-            border: 1px solid #000;
-            padding: 10px;
-            background-color: #f9f9f9;
-            max-width: 100%;
-            page-break-inside: avoid;
-            border-radius: 10px;
-        }
-        .cabinet-item {
-            display: inline-block;
-            width: 45%;
-            margin: 5px 2.5%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        .cabinet-item button {
-            background-color: #d9534f;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .cabinet-item button:hover {
-            background-color: #c9302c;
-        }
-    </style>
+    <title>Living Stone Creations</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
-
-<div class="header">
-    <h1>Living Stone Creations</h1>
-    <h2>Custom Edge Banding Linear Footage Calculator</h2>
-</div>
-
-<div class="panel">
-    <label for="jobName">Job Name:</label>
-    <input type="text" id="jobName" placeholder="Enter job name">
-
-    <label for="roomName">Room Name:</label>
-    <input type="text" id="roomName" placeholder="Enter room name">
-</div>
-
-<div class="panel">
-    <label for="toeKickHeight">Toe Kick Height:</label>
-    <select id="toeKickHeight">
-        <option value="4">4 inches</option>
-        <option value="3">3 inches</option>
-        <option value="2">2 inches</option>
-        <option value="5">5 inches</option>
-    </select>
-
-    <label for="cabinetNumber">Cabinet Number:</label>
-    <input type="number" id="cabinetNumber" placeholder="Enter cabinet number">
-
-    <label for="cabinetType">Cabinet Type:</label>
-    <select id="cabinetType" onchange="toggleToeKick()">
-        <option value="Base">Base</option>
-        <option value="Upper">Upper</option>
-        <option value="Vanity">Vanity</option>
-        <option value="Sink Cab">Sink Cab</option>
-        <option value="Stove Cab">Stove Cab</option>
-        <option value="Farm Sink Cab">Farm Sink Cab</option>
-        <option value="Pantry">Pantry</option>
-        <option value="Pantry Oven/Microwave">Pantry Oven/Microwave</option>
-    </select>
-
-    <label for="cabWidth">Width of Cabinet (inches):</label>
-    <input type="text" id="cabWidth" placeholder="Enter width in inches (e.g., 24 or 24 1/2)">
-
-    <label for="numSpanners">Number of Horizontal Spanners (Including top and bottom):</label>
-    <input type="number" id="numSpanners" placeholder="Enter number of spanners">
-
-    <label for="cabHeight">Height of Cabinet (inches):</label>
-    <input type="text" id="cabHeight" placeholder="Enter height in inches (e.g., 30 or 30 1/4)">
-
-    <label for="numSides">Number of Sides (including dividers):</label>
-    <input type="number" id="numSides" placeholder="Enter number of sides">
-
-    <button onclick="addCabinet()">Add Cabinet to List</button>
-</div>
-
-<div id="cabinetListContainer" class="panel">
-    <h3>Total Linear Footage: <span id="totalResult">0.00</span> feet</h3>
-    <h4>Total Cabinets: <span id="cabinetCount">0</span></h4>
-    <div id="cabinetList"></div>
-</div>
-
-<script>
-let totalLinearFootage = 0;
-let cabinetCount = 0;
-
-function fractionToDecimal(fraction) {
-    if (fraction.includes('/')) {
-        const parts = fraction.split(' ');
-        if (parts.length === 2) {
-            const whole = parseFloat(parts[0]);
-            const frac = parts[1].split('/');
-            return whole + (parseFloat(frac[0]) / parseFloat(frac[1]));
-        } else {
-            const frac = parts[0].split('/');
-            return parseFloat(frac[0]) / parseFloat(frac[1]);
-        }
-    } else {
-        return parseFloat(fraction);
-    }
-}
-
-function calculateLinearFootage(cabWidth, numSpanners, cabHeight, numSides) {
-    const cabinetType = document.getElementById('cabinetType').value;
-    const toeKickHeight = parseFloat(document.getElementById('toeKickHeight').value);
-
-    // Subtract toe kick height from cabinet height if applicable
-    if (cabinetType !== 'Upper') {
-        cabHeight -= toeKickHeight;
-    }
-
-    // Calculate total length of edges in inches
-    const totalLengthInches = (cabWidth * numSpanners) + (cabHeight * numSides);
-    // Convert to linear footage
-    return totalLengthInches / 12;
-}
-
-function addCabinet() {
-    const jobName = document.getElementById('jobName').value.trim();
-    const roomName = document.getElementById('roomName').value.trim();
-    const cabinetNumber = parseInt(document.getElementById('cabinetNumber').value);
-    const cabinetType = document.getElementById('cabinetType').value;
-    const cabWidth = fractionToDecimal(document.getElementById('cabWidth').value);
-    const numSpanners = parseInt(document.getElementById('numSpanners').value);
-    let cabHeight = fractionToDecimal(document.getElementById('cabHeight').value);
-    const numSides = parseInt(document.getElementById('numSides').value);
-
-    if (isNaN(cabinetNumber) || isNaN(cabWidth) || isNaN(numSpanners) || isNaN(cabHeight) || isNaN(numSides)) {
-        alert("Please enter valid numbers in all fields.");
-        return;
-    }
-
-    const linearFootage = calculateLinearFootage(cabWidth, numSpanners, cabHeight, numSides);
-    totalLinearFootage += linearFootage;
-    cabinetCount++;
-
-    const cabinetList = document.getElementById('cabinetList');
-
-    // Add Job Name and Room Name to the list only once
-    if (cabinetCount === 1) {
-        const jobRoomItem = document.createElement('div');
-        jobRoomItem.className = 'cabinet-item';
-        jobRoomItem.style.width = "100%"; // Ensure full-width for job/room info
-        jobRoomItem.style.fontWeight = "bold"; // Make it stand out
-        jobRoomItem.innerHTML = `Job: ${jobName} | Room: ${roomName}`;
-        cabinetList.appendChild(jobRoomItem);
-    }
-
-    // Add the cabinet to the list
-    const cabinetItem = document.createElement('div');
-    cabinetItem.className = 'cabinet-item';
-    cabinetItem.innerHTML = `Cabinet ${cabinetNumber} (${cabinetType}) - ${linearFootage.toFixed(2)} feet <button onclick="removeCabinet(this, ${linearFootage})">Delete</button>`;
-    cabinetList.appendChild(cabinetItem);
-
-    // Update the total linear footage and cabinet count display
-    document.getElementById('totalResult').innerText = totalLinearFootage.toFixed(2);
-    document.getElementById('cabinetCount').innerText = cabinetCount;
-
-    // Clear the input fields and set focus back to cabinet number field
-    document.getElementById('cabinetNumber').value = '';
-    document.getElementById('cabinetType').value = 'Base';
-    document.getElementById('cabWidth').value = '';
-    document.getElementById('numSpanners').value = '';
-    document.getElementById('cabHeight').value = '';
-    document.getElementById('numSides').value = '';
-    document.getElementById('cabinetNumber').focus();
-
-    // Reset toe kick height dropdown to active
-    document.getElementById('toeKickHeight').disabled = false;
-}
-
-
-function removeCabinet(button, linearFootage) {
-    // Remove the cabinet's linear footage from the total
-    totalLinearFootage -= linearFootage;
-    cabinetCount--;
-
-    // Remove the cabinet item from the list
-    button.parentElement.remove();
-
-    // Update the total linear footage and cabinet count display
-    document.getElementById('totalResult').innerText = totalLinearFootage.toFixed(2);
-    document.getElementById('cabinetCount').innerText = cabinetCount;
-}
-
-function toggleToeKick() {
-    const cabinetType = document.getElementById('cabinetType').value;
-    const toeKickHeight = document.getElementById('toeKickHeight');
-    
-    if (cabinetType === 'Upper') {
-        toeKickHeight.disabled = true;
-    } else {
-        toeKickHeight.disabled = false;
-    }
-}
-</script>
-
+    <div class="base-container">
+        <div class="header">
+            <h1>Living Stone Creations</h1>
+            <div class="nav-menu"><button class="active" onclick="showComponent('edgeBandCalculator')">Edge Band
+                    Calculator</button><button onclick="showComponent('finishingSuppliesCalculator')">Finishing Supplies
+                    Calculator</button><button onclick="showComponent('cabinetQuote')">Cabinet Quote</button><button
+                    onclick="showComponent('etf')">Estimated Time to Finish (ETF)</button><button
+                    onclick="showComponent('stoneQuote')">Stone Quote</button></div>
+        </div>
+        <div id="edgeBandCalculator" class="panel"><label for="jobName">Job Name:</label><input type="text" id="jobName"
+                placeholder="Enter job name"><label for="roomName">Room Name:</label><input type="text" id="roomName"
+                placeholder="Enter room name"><label for="toeKickHeight">Toe Kick Height:</label><select
+                id="toeKickHeight">
+                <option value="4">4 inches</option>
+                <option value="3">3 inches</option>
+                <option value="2">2 inches</option>
+                <option value="5">5 inches</option>
+            </select><label for="cabinetNumber">Cabinet Number:</label><input type="number" id="cabinetNumber"
+                placeholder="Enter cabinet number"><label for="cabinetType">Cabinet Type:</label><select
+                id="cabinetType" onchange="toggleToeKick()">
+                <option value="Base">Base</option>
+                <option value="Upper">Upper</option>
+                <option value="Vanity">Vanity</option>
+                <option value="Sink Cab">Sink Cab</option>
+                <option value="Stove Cab">Stove Cab</option>
+                <option value="Farm Sink Cab">Farm Sink Cab</option>
+                <option value="Pantry">Pantry</option>
+                <option value="Pantry Oven/Microwave">Pantry Oven/Microwave</option>
+            </select><label for="cabWidth">Width of Cabinet (inches):</label><input type="text" id="cabWidth"
+                placeholder="Enter width in inches (e.g., 24 or 24 1/2)"><label for="numSpanners">Number of Horizontal
+                Spanners (Including top and bottom):</label><input type="number" id="numSpanners"
+                placeholder="Enter number of spanners"><label for="cabHeight">Height of Cabinet (inches):</label><input
+                type="text" id="cabHeight" placeholder="Enter height in inches (e.g., 30 or 30 1/4)"><label
+                for="numSides">Number of Sides (including dividers):</label><input type="number" id="numSides"
+                placeholder="Enter number of sides"><button onclick="addCabinet()">Add Cabinet to List</button>
+            <div id="cabinetListContainer" class="panel">
+                <h3>Total Linear Footage: <spanid="totalResult">0.00</span> feet</h3>
+                <h4>Total Cabinets: <spanid="cabinetCount">0</span></h4>
+                <div id="cabinetList"></div>
+            </div>
+        </div>
+        <div id="finishingSuppliesCalculator" class="panel hidden">
+            <h3>Finishing Supplies Calculator</h3><!-- Finishing Supplies Calculator content will go here -->
+            <p>Under Development...</p>
+        </div>
+        <div id="cabinetQuote" class="panel hidden">
+            <h3>Cabinet Quote</h3><!-- Cabinet Quote content will go here -->
+            <p>Under Development...</p>
+        </div>
+        <div id="etf" class="panel hidden">
+            <h3>Estimated Time to Finish (ETF)</h3><!-- Estimated Time to Finish content will go here -->
+            <p>Under Development...</p>
+        </div>
+        <div id="stoneQuote" class="panel hidden">
+            <h3>Stone Quote</h3><!-- Stone Quote content will go here -->
+            <divid="stoneQuote"class="panel hidden"><h3>Stone Quote</h3><canvas id="drawingCanvas"></canvas></div>
+            <p>Under Development...</p>
+        </div>
+    </div>
+    <script src="js/main.js"></script>
 </body>
+
 </html>
